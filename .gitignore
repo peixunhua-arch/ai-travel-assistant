@@ -1,0 +1,39 @@
+# 依赖
+node_modules/
+.pnpm-store/
+
+# 环境变量（严禁提交！含密钥）
+.env
+.env.local
+.env.development
+.env.production
+!.env.example
+
+# 构建产物
+dist/
+build/
+*.tsbuildinfo
+
+# 本地 SQLite 数据库（阶段 3.5：行程/评价落库，不提交）
+apps/server/data/
+*.db
+*.db-journal
+*.db-wal
+
+# Expo
+.expo/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# 日志
+*.log
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# 系统
+.DS_Store
+Thumbs.db

@@ -1,0 +1,10 @@
+{
+  "name": "ai-travel-assistant",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI 旅游助手 —— Expo App + 自建 Node 后端 + Claude",
+  "scripts": {
+    "dev:server": "pnpm --filter @travel/server dev",
+    "dev:mobile": "pnpm --filter @travel/mobile start"
+  }
+}
