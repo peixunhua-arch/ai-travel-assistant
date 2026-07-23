@@ -63,12 +63,24 @@ export interface TripItem {
   opentime?: string; // 营业时间（高德回填，有才显示角标）
   // links 整块由后端 buildLinks() 拼好回填（Claude 不产出）：导航 + 小红书 + 大众点评。
   // 每个都给一对：scheme（唤起 App）+ 网页 url（App 没装时兜底）。
+  // ⚠️ 小红书/大众点评仅为「按店名搜索」跳转，不是数据抓取来源；地点真值来自高德。
   links?: {
     dianpingUrl: string;
     xhsUrl: string;
     mapUrl: string;
     xhsScheme: string;
     dianpingScheme: string;
+  };
+  /**
+   * 数据来源标注（后端 enrich 时写入）。
+   * - place：坐标/评分/地址/店名对齐来源（amap=高德回填；ai=未回填，仅模型文案）
+   * - description：推荐理由始终为 AI
+   * - external：小红书/点评/地图链接的性质（search_only=按名搜索，非抓取）
+   */
+  dataSources?: {
+    place: 'amap' | 'ai';
+    description: 'ai';
+    external: 'search_only';
   };
 }
 

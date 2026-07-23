@@ -9,7 +9,7 @@ import { z } from 'zod';
 import type { TripGenerateResponse, ApiError } from '@travel/shared';
 import { requireAuth } from '../middleware/auth.js';
 import { rateLimit } from '../middleware/rateLimit.js';
-import { generateTrip } from '../services/claude.js';
+import { generateTrip } from '../services/ai/index.js';
 
 export const tripRouter = Router();
 

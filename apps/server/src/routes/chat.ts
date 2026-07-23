@@ -4,7 +4,7 @@ import { z } from 'zod';
 import type { ChatResponse, ApiError } from '@travel/shared';
 import { requireAuth } from '../middleware/auth.js';
 import { rateLimit } from '../middleware/rateLimit.js';
-import { ask, askStream } from '../services/claude.js';
+import { ask, askStream } from '../services/ai/index.js';
 
 export const chatRouter = Router();
 

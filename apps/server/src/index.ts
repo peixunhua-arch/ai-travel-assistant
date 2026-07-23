@@ -15,10 +15,16 @@ import { distanceRouter } from './routes/distance.js';
 import { chatFeedbackRouter } from './routes/chatFeedback.js';
 import { communityRouter } from './routes/community.js';
 
-// 启动前检查关键环境变量，早失败早发现
-// 走网关用 CLAUDE_AUTH_TOKEN（Bearer），直连官方用 CLAUDE_API_KEY（sk-ant-），二者需其一
-if (!process.env.CLAUDE_AUTH_TOKEN && !process.env.CLAUDE_API_KEY) {
-  console.error('❌ 缺少 Claude 凭证：请复制 .env.example 为 .env，并填入 CLAUDE_AUTH_TOKEN（课程网关）或 CLAUDE_API_KEY（官方直连）');
+// 启动前检查 AI 凭证：聊天用豆包，行程用 DeepSeek
+if (!process.env.DOUBAO_API_KEY) {
+  console.error('❌ 缺少 DOUBAO_API_KEY：聊天走豆包（火山方舟），请在 apps/server/.env 配置');
+  process.exit(1);
+}
+if (!process.env.DOUBAO_MODEL || process.env.DOUBAO_MODEL === 'ep-xxxxxxxx') {
+  console.warn('⚠️  DOUBAO_MODEL 未配置真实接入点 ID（ep-xxxx），聊天可能失败');
+}
+if (!process.env.DEEPSEEK_API_KEY) {
+  console.error('❌ 缺少 DEEPSEEK_API_KEY：行程走 DeepSeek，请在 apps/server/.env 配置');
   process.exit(1);
 }
 
@@ -50,4 +56,6 @@ const PORT = Number(process.env.PORT ?? 3000);
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ 后端已启动: http://localhost:${PORT}`);
   console.log(`   健康检查:   http://localhost:${PORT}/health`);
+  console.log(`   聊天模型:   豆包 (${process.env.DOUBAO_MODEL || '未配置'})`);
+  console.log(`   行程模型:   DeepSeek (${process.env.DEEPSEEK_MODEL || 'deepseek-v4-flash'})`);
 });

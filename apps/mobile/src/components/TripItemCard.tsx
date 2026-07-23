@@ -12,7 +12,7 @@ import { TRIP_TYPE_META } from '../tripTypes';
 import { openLink } from '../linking';
 import { ReviewButtons } from './ReviewButtons';
 import { CommunityBadge } from './CommunityBadge';
-import { SourceBadge } from './SourceBadge';
+import { SourceBadgeRow } from './SourceBadge';
 import { colors, spacing, radius, font } from '../theme';
 import { useElderMode, useScaledFont } from '../lib/elderMode';
 
@@ -48,7 +48,7 @@ export function TripItemCard({
   const [expanded, setExpanded] = useState(!collapsible && !elder);
   const meta = TRIP_TYPE_META[item.type];
   const links = item.links; // 阶段 3 回填才有；老行程/未命中为 undefined
-  const hasAmap = !!links;
+  const hasAmap = item.dataSources?.place === 'amap' || !!links;
   const a11yLabel = `${item.time}，${meta.label}，${item.name}${item.rating !== undefined ? `，评分 ${item.rating.toFixed(1)}` : ''}`;
 
   const toggleExpand = () => {
@@ -96,7 +96,7 @@ export function TripItemCard({
             {item.opentime ? (
               <Text style={styles.opentime}>🕐 营业 {item.opentime}</Text>
             ) : null}
-            <SourceBadge source={hasAmap ? 'amap' : 'ai'} />
+            <SourceBadgeRow hasAmap={hasAmap} />
             <Text style={styles.expandHint}>点击展开详情</Text>
           </TouchableOpacity>
         ) : (
@@ -104,7 +104,7 @@ export function TripItemCard({
             {!elder && item.opentime ? (
               <Text style={styles.opentime}>🕐 营业 {item.opentime}</Text>
             ) : null}
-            {!elder && <SourceBadge source={hasAmap ? 'amap' : 'ai'} />}
+            {!elder && <SourceBadgeRow hasAmap={hasAmap} />}
             {!elder && (expanded || !collapsible) && <Text style={styles.desc}>{item.description}</Text>}
           </>
         )}
@@ -135,7 +135,7 @@ export function TripItemCard({
               </Text>
             )}
             {reputation && <CommunityBadge reputation={reputation} />}
-            {/* 三个跳转小按钮：导航（网页最稳）/ 小红书 / 大众点评。 */}
+            {/* 三个跳转小按钮：均为「按名搜索」入口，不是从该平台抓取的数据。 */}
             <View style={styles.linkRow}>
               <TouchableOpacity
                 style={styles.linkBtn}
@@ -152,7 +152,7 @@ export function TripItemCard({
                 accessibilityRole="button"
                 accessibilityLabel={`在小红书搜索 ${item.name}`}
               >
-                <Text style={styles.linkText}>🔴 小红书</Text>
+                <Text style={styles.linkText}>🔴 搜小红书</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.linkBtn}
@@ -160,9 +160,12 @@ export function TripItemCard({
                 accessibilityRole="button"
                 accessibilityLabel={`在大众点评搜索 ${item.name}`}
               >
-                <Text style={styles.linkText}>🟠 点评</Text>
+                <Text style={styles.linkText}>🟠 搜点评</Text>
               </TouchableOpacity>
             </View>
+            <Text style={styles.linkHint}>
+              地点来自高德；小红书/点评为按店名搜索，各平台收录不同，搜不到属正常
+            </Text>
           </>
         )}
 
@@ -287,6 +290,12 @@ const styles = StyleSheet.create({
     fontSize: font.tiny.size,
     color: colors.textPrimary,
     fontWeight: '600',
+  },
+  linkHint: {
+    fontSize: font.tiny.size,
+    lineHeight: font.tiny.lineHeight,
+    color: colors.textMuted,
+    marginTop: spacing.xs,
   },
   elderNavBtn: {
     marginTop: spacing.sm,
