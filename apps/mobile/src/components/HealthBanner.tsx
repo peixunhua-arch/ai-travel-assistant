@@ -33,7 +33,9 @@ export function HealthBanner() {
 
   return (
     <View style={styles.banner}>
-      <Text style={styles.text}>⚠️ 未连接到后端服务，请检查电脑后端是否启动、手机是否同一 WiFi</Text>
+      <Text style={styles.text}>
+        ⚠️ 连不上服务器。若在会议室/访客 WiFi，请关掉 WiFi 改用手机流量，或到「我的 → 服务器」点测试连接
+      </Text>
       <TouchableOpacity
         style={styles.retryBtn}
         onPress={run}

@@ -5,7 +5,10 @@ import NetInfo, { type NetInfoState } from '@react-native-community/netinfo';
 export type NetworkKind = 'online' | 'offline' | 'weak';
 
 function classify(state: NetInfoState): NetworkKind {
-  if (state.isConnected === false || state.isInternetReachable === false) return 'offline';
+  // 仅在明确未连接时判离线。isInternetReachable===false 在小米/双通道下常误报
+  //（例如连了无外网 WiFi，流量其实可用），不能直接当成离线拦住请求。
+  if (state.isConnected === false) return 'offline';
+  if (state.isInternetReachable === false) return 'weak';
   if (state.type === 'cellular') return 'weak';
   return 'online';
 }

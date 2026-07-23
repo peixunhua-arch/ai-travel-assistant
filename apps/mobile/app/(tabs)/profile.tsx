@@ -23,7 +23,7 @@ import {
   setApiBaseUrl,
   resetApiBaseUrl,
 } from '../../src/apiBase';
-import { checkHealth, fetchUserPreferences, fetchUserProfile, updateUserProfile } from '../../src/api';
+import { checkHealth, checkHealthDetailed, fetchUserPreferences, fetchUserProfile, updateUserProfile } from '../../src/api';
 import { listSavedTrips, importMissingCloudTrips } from '../../src/tripStore';
 import { ProfileSection } from '../../src/components/profile/ProfileSection';
 import { ProfileSwitchRow } from '../../src/components/profile/ProfileSwitchRow';
@@ -508,13 +508,16 @@ export default function ProfileTab() {
                       setApiTesting(true);
                       try {
                         await setApiBaseUrl(apiDraft);
-                        const ok = await checkHealth();
-                        if (ok) {
+                        const result = await checkHealthDetailed();
+                        if (result.ok) {
                           tapSuccess();
-                          Alert.alert('连接成功', `已连通 ${getApiBaseUrl()}`);
+                          Alert.alert('连接成功', `已连通 ${result.url}`);
                         } else {
                           tapError();
-                          Alert.alert('连接失败', `打不开 ${getApiBaseUrl()}/health`);
+                          Alert.alert(
+                            '连接失败',
+                            `地址：${result.url}\n原因：${result.error ?? '未知'}\n\n请确认：\n1. 手机流量已打开（可先关掉 WiFi）\n2. 浏览器能打开上述地址\n3. 地址为 http://47.99.246.14:3000`,
+                          );
                         }
                       } catch (e) {
                         tapError();

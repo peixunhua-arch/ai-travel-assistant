@@ -52,19 +52,34 @@ async function getDeviceId(): Promise<string> {
 
 /**
  * 连通性预检：启动时问一下后端「你还活着吗」。
- * 用 5 秒超时，避免后端没开时界面一直干等。
- * 返回 true=通，false=不通（不抛错，调用方拿布尔值判断就行）。
+ * 返回详细结果，便于「测试连接」展示真实失败原因。
  */
-export async function checkHealth(): Promise<boolean> {
+export async function checkHealthDetailed(): Promise<{ ok: boolean; error?: string; url: string }> {
+  const url = `${getApiBaseUrl()}/health`;
+  // 不使用 AbortController / XMLHttpRequest：RN 0.81 上二者都会踩 Event.NONE 只读坑
   try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 5000);
-    const res = await fetch(`${getApiBaseUrl()}/health`, { signal: controller.signal });
-    clearTimeout(timer);
-    return res.ok;
-  } catch {
-    return false;
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+    });
+    if (!res.ok) {
+      return { ok: false, url, error: `HTTP ${res.status}` };
+    }
+    return { ok: true, url };
+  } catch (fetchErr) {
+    const fetchMsg = fetchErr instanceof Error ? fetchErr.message : String(fetchErr);
+    const stack = fetchErr instanceof Error ? fetchErr.stack : '';
+    return {
+      ok: false,
+      url,
+      error: stack ? `${fetchMsg}\n${stack.split('\n').slice(0, 4).join('\n')}` : fetchMsg || '失败',
+    };
   }
+}
+
+export async function checkHealth(): Promise<boolean> {
+  const r = await checkHealthDetailed();
+  return r.ok;
 }
 
 // 把后端返回的错误体解析成一句人话（后端约定是 { error, code }）。
@@ -80,14 +95,13 @@ async function readError(res: Response, context?: 'chat' | 'trip'): Promise<stri
 /** 把 RN 的「Network request failed」翻成可操作的排查提示 */
 function wrapNetworkError(e: unknown): Error {
   const msg = e instanceof Error ? e.message : String(e);
-  if (msg.includes('Network request failed') || msg.includes('Failed to fetch')) {
+  if (msg.includes('Network request failed') || msg.includes('Failed to fetch') || msg.includes('Aborted')) {
     return new Error(
-      `无法连接后端 ${getApiBaseUrl()}\n\n请检查：\n` +
-        '1. 电脑终端里后端已启动（pnpm dev:server）\n' +
-        '2. 手机和电脑连同一 WiFi（不要用手机流量）\n' +
-        '3. Windows 防火墙允许 3000 端口\n' +
-        '4. 在「我的」页底部修改服务器地址后重试\n' +
-        '5. USB 调试时可设 http://127.0.0.1:3000 并执行 adb reverse tcp:3000 tcp:3000',
+      `无法连接服务器 ${getApiBaseUrl()}\n\n请检查：\n` +
+        '1. 手机能否打开该地址（浏览器访问 /health）\n' +
+        '2. 若连了会议室/访客 WiFi，先关掉 WiFi 改用手机流量\n' +
+        '3. 在「我的 → 服务器」确认地址为 http://47.99.246.14:3000 后点「测试连接」\n' +
+        '4. 不要开仅代理局域网的 VPN',
     );
   }
   return e instanceof Error ? e : new Error(msg);

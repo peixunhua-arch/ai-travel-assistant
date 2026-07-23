@@ -8,10 +8,10 @@
 //
 // 也可以用环境变量覆盖（EXPO_PUBLIC_ 前缀的变量会自动注入到 App 里）。
 /** 打包默认后端地址；运行时以 apiBase.ts（「我的」可改）为准。
- * 默认走 USB adb reverse（http://127.0.0.1:3000）；同网 WiFi 时可在「我的」改回局域网 IP。
+ * 默认指向阿里云公网 ECS，朋友装 APK 可直接用；本地调试可在「我的 → 服务器」改。
  */
 export const DEFAULT_API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://127.0.0.1:3000';
+  process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://47.99.246.14:3000';
 
 /** @deprecated 请用 getApiBaseUrl()；保留别名避免漏改导致编译失败 */
 export const API_BASE_URL = DEFAULT_API_BASE_URL;

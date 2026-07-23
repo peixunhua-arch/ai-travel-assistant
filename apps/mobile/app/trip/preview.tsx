@@ -77,7 +77,7 @@ export default function TripPreview() {
     if (!healthy) {
       setStatus('error');
       setErrorMsg(
-        `无法连接后端 ${getApiBaseUrl()}\n\n请确认电脑后端已启动，手机与电脑同一 WiFi；或到「我的」页修改服务器地址。`,
+        `无法连接后端 ${getApiBaseUrl()}\n\n请到「我的」长按版本号，把服务器改成 http://47.99.246.14:3000 后点「保存」和「测试连接」。\n若在会议室 WiFi，请改用手机流量。`,
       );
       return;
     }
